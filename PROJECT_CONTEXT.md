@@ -143,7 +143,7 @@ Java-Project-RoomSync/
 ├── resources/
 │   ├── config.properties          # Scoring weights, passwords, form & sheet URLs
 │   ├── schema.sql                 # SQLite schema
-│   ├── seed.sql                   # Initial demo seed data (21 students, 3 hostels)
+│   ├── seed.sql                   # Initial demo seed data (360 students, 3 hostels)
 │   ├── sample_responses.csv       # Test CSV import data
 │   ├── registration_form.html     # Standalone registration web form
 │   └── create_google_form.gs      # 1-click Google Apps Script form generator
