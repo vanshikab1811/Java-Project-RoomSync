@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoomSync — Student Registration & Lifestyle Survey</title>
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --primary: #1E293B;
+      --primary-hover: #334155;
+      --accent: #2563EB;
+      --accent-hover: #1D4ED8;
+      --border: #E2E8F0;
+      --input-bg: #F8FAFC;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 760px;
+      width: 100%;
+    }
+
+    header {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-top: 6px solid var(--accent);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    .banner {
+      background: #EFF6FF;
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      color: #1E40AF;
+    }
+
+    .section-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-badge {
+      background: #EEF2F6;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .required::after {
+      content: " *";
+      color: #EF4444;
+    }
+
+    .help-text {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 14.5px;
+      border: 1px solid var(--border);
+      background-color: var(--input-bg);
+      border-radius: 8px;
+      color: var(--text-main);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      background: #FFFFFF;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .section-card { padding: 20px; }
+      header { padding: 20px; }
+    }
+
+    .radio-group, .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .option-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: normal;
+      cursor: pointer;
+      background: #F1F5F9;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      user-select: none;
+      transition: all 0.15s;
+    }
+
+    .option-label:hover {
+      background: #E2E8F0;
+    }
+
+    input[type="radio"]:checked + span,
+    input[type="checkbox"]:checked + span {
+      font-weight: 600;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .slider-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      width: 28px;
+      text-align: right;
+    }
+
+    /* Grid Table for Importance */
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+
+    th {
+      background: #F8FAFC;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    tr:hover td {
+      background: #F8FAFC;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 14.5px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.15s, transform 0.05s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .btn-accent:hover {
+      background: var(--accent-hover);
+    }
+
+    .notice {
+      margin-top: 20px;
+      padding: 16px;
+      background: #F1F5F9;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>RoomSync — Student Registration</h1>
+    <p class="subtitle">Intelligent Hostel Eligibility & Roommate Compatibility Recommendation System</p>
+    <div class="banner">
+      <strong>Scope notice:</strong> RoomSync is recommendation-only. It calculates academic eligibility and 
+      ranks compatible roommates based on lifestyle habits. Official room/bed allocation is handled separately by the hostel office.
+    </div>
+  </header>
+
+  <form id="roomSyncForm" onsubmit="event.preventDefault(); downloadResponsesCsv();">
+    <!-- SECTION 1 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-badge">Section 1</span>
+        Personal & Academic Details
+      </div>
+      <p class="section-desc">Used for student identity and academic eligibility cutoff verification.</p>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="required" for="fullName">Full Name</label>
+          <input type="text" id="fullName" required placeholder="e.g. Diya Sharma">
+        </div>
+        <div class="form-group">
+          <label class="required" for="rollNo">University Roll Number</label>
+          <input type="text" id="rollNo" required placeholder="e.g. 24BCE1001" style="text-transform: uppercase;">
+          <div class="help-text">Used as your login identifier in RoomSync.</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="required" for="email">University Email</label>
+          <input type="email" id="email" required placeholder="student@uni.edu">
+        </div>
+        <div class="form-group">
+          <label class="required" for="program">Program / Degree</label>
+          <input type="text" id="program" required placeholder="e.g. B.Tech Computer Science">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="required" for="academicYear">Academic Year</label>
+          <select id="academicYear" required onchange="updateScoreLabel()">
+            <option value="1st Year">1st Year (First Year)</option>
+            <option value="2nd Year" selected>2nd Year (Second Year)</option>
+            <option value="3rd Year">3rd Year (Third Year)</option>
+            <option value="4th Year">4th Year (Fourth Year)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="required" id="scoreLabel" for="score">Academic Score (CGPA: 0 to 10)</label>
+          <input type="number" id="score" step="0.01" min="0" max="10" required placeholder="e.g. 8.5">
+          <div class="help-text" id="scoreHelp">1st Year uses Percentile (0-100); 2nd-4th Years use CGPA (0-10).</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Hostel Application Type</label>
+        <div class="radio-group">
+          <label class="option-label"><input type="radio" name="appType" value="First-time" checked> <span>First-time</span></label>
+          <label class="option-label"><input type="radio" name="appType" value="Renewal"> <span>Renewal</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-badge">Section 2</span>
+        Hostel & Occupancy Preferences
+      </div>
+      <p class="section-desc">Preferences only — RoomSync displays options you academically qualify for.</p>
+
+      <div class="form-group">
+        <label>Hostel Preferences (Select all you would like to consider)</label>
+        <div class="checkbox-group">
+          <label class="option-label"><input type="checkbox" name="hostel" value="Aravali House" checked> <span>Aravali House</span></label>
+          <label class="option-label"><input type="checkbox" name="hostel" value="Nilgiri Residency" checked> <span>Nilgiri Residency</span></label>
+          <label class="option-label"><input type="checkbox" name="hostel" value="Shivalik Hall"> <span>Shivalik Hall</span></label>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="occupancy">Preferred Occupancy</label>
+          <select id="occupancy">
+            <option value="Single">Single</option>
+            <option value="Double" selected>Double</option>
+            <option value="Triple">Triple</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="floor">Preferred Floor / Building</label>
+          <select id="floor">
+            <option value="No preference" selected>No preference</option>
+            <option value="Ground Floor">Ground Floor</option>
+            <option value="Upper Floors">Upper Floors</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="specificReq">Specific Accommodation Requirement (Optional)</label>
+        <textarea id="specificReq" rows="2" placeholder="e.g. Ground floor preference due to accessibility needs"></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-badge">Section 3</span>
+        Lifestyle & Roommate Preferences
+      </div>
+      <p class="section-desc">Compared using RoomSync's weighted algorithm to find compatible roommates.</p>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="sleepTime">Typical Sleep Time (Bedtime)</label>
+          <input type="time" id="sleepTime" value="23:00">
+          <div class="help-text">24-hour time (e.g. 23:00 or 00:30)</div>
+        </div>
+        <div class="form-group">
+          <label for="wakeTime">Typical Wake-Up Time</label>
+          <input type="time" id="wakeTime" value="07:00">
+          <div class="help-text">24-hour time (e.g. 07:00 or 08:00)</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="cleanliness">Cleanliness (1 = Relaxed, 10 = Very Organized)</label>
+          <div class="slider-container">
+            <input type="range" id="cleanliness" min="1" max="10" value="8" oninput="document.getElementById('cleanVal').innerText = this.value">
+            <span class="slider-val" id="cleanVal">8</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="noise">Noise Tolerance (1 = Need Silence, 10 = High Tolerance)</label>
+          <div class="slider-container">
+            <input type="range" id="noise" min="1" max="10" value="5" oninput="document.getElementById('noiseVal').innerText = this.value">
+            <span class="slider-val" id="noiseVal">5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="studyRoom">Do you study in your room?</label>
+          <select id="studyRoom">
+            <option value="Yes" selected>Yes</option>
+            <option value="Sometimes">Sometimes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="studyTime">Preferred Study Time</label>
+          <select id="studyTime">
+            <option value="Night" selected>Night</option>
+            <option value="Evening">Evening</option>
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="roomEnv">Room Environment</label>
+          <select id="roomEnv">
+            <option value="Quiet" selected>Quiet</option>
+            <option value="Balanced">Balanced</option>
+            <option value="Lively">Lively</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="guests">Guest Frequency</label>
+          <select id="guests">
+            <option value="Rarely" selected>Rarely</option>
+            <option value="Sometimes">Sometimes</option>
+            <option value="Never">Never</option>
+            <option value="Often">Often</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="foodPref">Food Preference</label>
+          <select id="foodPref">
+            <option value="Veg" selected>Vegetarian (Veg)</option>
+            <option value="Egg">Eggitarian (Egg)</option>
+            <option value="Non-veg">Non-vegetarian (Non-veg)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="foodSharing">Comfortable Sharing Food?</label>
+          <select id="foodSharing">
+            <option value="Yes" selected>Yes</option>
+            <option value="Sometimes">Sometimes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="roomOrg">Room Organization</label>
+          <select id="roomOrg">
+            <option value="Very organized" selected>Very organized</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Relaxed">Relaxed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="acPref">AC Temperature Preference (Optional)</label>
+          <input type="text" id="acPref" placeholder="e.g. 24°C or No preference">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-badge">Section 4</span>
+        Important Requirements & Priorities
+      </div>
+      <p class="section-desc">Classify factor importance. "Must have" rules exclude candidates scoring below 50 on that factor.</p>
+
+      <div class="form-group">
+        <label>Factor Importance Classification</label>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Factor</th>
+                <th>Must have (x2.0)</th>
+                <th>Preferable (x1.5)</th>
+                <th>Not important (x0.25)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sleep schedule</td>
+                <td><input type="radio" name="imp_SLEEP" value="Must have" checked></td>
+                <td><input type="radio" name="imp_SLEEP" value="Preferable"></td>
+                <td><input type="radio" name="imp_SLEEP" value="Not important"></td>
+              </tr>
+              <tr>
+                <td>Cleanliness</td>
+                <td><input type="radio" name="imp_CLEANLINESS" value="Must have"></td>
+                <td><input type="radio" name="imp_CLEANLINESS" value="Preferable" checked></td>
+                <td><input type="radio" name="imp_CLEANLINESS" value="Not important"></td>
+              </tr>
+              <tr>
+                <td>Noise tolerance</td>
+                <td><input type="radio" name="imp_NOISE" value="Must have"></td>
+                <td><input type="radio" name="imp_NOISE" value="Preferable" checked></td>
+                <td><input type="radio" name="imp_NOISE" value="Not important"></td>
+              </tr>
+              <tr>
+                <td>Study habits</td>
+                <td><input type="radio" name="imp_STUDY" value="Must have"></td>
+                <td><input type="radio" name="imp_STUDY" value="Preferable" checked></td>
+                <td><input type="radio" name="imp_STUDY" value="Not important"></td>
+              </tr>
+              <tr>
+                <td>Daily schedule</td>
+                <td><input type="radio" name="imp_SCHEDULE" value="Must have"></td>
+                <td><input type="radio" name="imp_SCHEDULE" value="Preferable"></td>
+                <td><input type="radio" name="imp_SCHEDULE" value="Not important" checked></td>
+              </tr>
+              <tr>
+                <td>Room environment</td>
+                <td><input type="radio" name="imp_ENVIRONMENT" value="Must have"></td>
+                <td><input type="radio" name="imp_ENVIRONMENT" value="Preferable" checked></td>
+                <td><input type="radio" name="imp_ENVIRONMENT" value="Not important"></td>
+              </tr>
+              <tr>
+                <td>Guests and social</td>
+                <td><input type="radio" name="imp_SOCIAL" value="Must have"></td>
+                <td><input type="radio" name="imp_SOCIAL" value="Preferable"></td>
+                <td><input type="radio" name="imp_SOCIAL" value="Not important" checked></td>
+              </tr>
+              <tr>
+                <td>Food</td>
+                <td><input type="radio" name="imp_FOOD" value="Must have"></td>
+                <td><input type="radio" name="imp_FOOD" value="Preferable"></td>
+                <td><input type="radio" name="imp_FOOD" value="Not important" checked></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Habits You Cannot Tolerate</label>
+        <div class="checkbox-group">
+          <label class="option-label"><input type="checkbox" value="Late night noise"> <span>Late night noise / gaming</span></label>
+          <label class="option-label"><input type="checkbox" value="Smoking"> <span>Smoking / vaping</span></label>
+          <label class="option-label"><input type="checkbox" value="Messy dishes"> <span>Messy / unwashed dishes</span></label>
+          <label class="option-label"><input type="checkbox" value="Frequent guests"> <span>Frequent unannounced guests</span></label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="guestPolicy">Guest Policy Preference</label>
+        <select id="guestPolicy">
+          <option value="Comfortable">Comfortable with visitors</option>
+          <option value="Only with restrictions" selected>Only with prior notice / restrictions</option>
+          <option value="Not comfortable">Not comfortable with visitors</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="section-badge">Section 5</span>
+        Consent & Submit
+      </div>
+      <p class="section-desc">Submission confirmation and recommendations acknowledgment.</p>
+
+      <div class="form-group">
+        <label class="option-label" style="background: transparent; padding: 0;">
+          <input type="checkbox" id="consentCheck" required checked>
+          <span style="font-size: 14px; font-weight: 500;">
+            I confirm the information provided is accurate, consent to RoomSync processing my responses to recommend compatible roommates, 
+            and understand recommendations are suggestions only (not official room allocations).
+          </span>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" id="submitBtn" class="btn btn-accent" style="font-size: 16px; padding: 14px 28px;">Register with RoomSync</button>
+        <button type="button" class="btn" style="background: #E2E8F0; color: #334155;" onclick="downloadBackupCsv()">Download CSV Backup</button>
+      </div>
+    </div>
+  </form>
+
+  <div id="statusModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; max-width: 480px; width: 90%; padding: 32px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center;">
+      <div id="modalIcon" style="font-size: 48px; margin-bottom: 12px;">🎉</div>
+      <h2 id="modalTitle" style="font-size: 22px; color: #0F172A; margin-bottom: 8px;">Registration Complete!</h2>
+      <p id="modalBody" style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 24px;"></p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button type="button" class="btn btn-primary" onclick="closeModal()">Back to Form</button>
+        <button type="button" id="modalActionBtn" class="btn btn-accent" onclick="closeModal()">Ready to Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice">
+    <strong>Automatic Registration Active:</strong><br>
+    When you click <em>"Register with RoomSync"</em>, your response is sent directly into RoomSync's database. 
+    You can immediately switch to the RoomSync window and sign in with your roll number!
+  </div>
+</div>
+
+<script>
+  function updateScoreLabel() {
+    const yr = document.getElementById('academicYear').value;
+    const label = document.getElementById('scoreLabel');
+    const input = document.getElementById('score');
+    const help = document.getElementById('scoreHelp');
+
+    if (yr === '1st Year') {
+      label.innerText = 'Academic Score (Percentile: 0 to 100) *';
+      input.max = '100';
+      input.placeholder = 'e.g. 94.5';
+      help.innerText = 'First-year students are evaluated by admission percentile.';
+    } else {
+      label.innerText = 'Academic Score (CGPA: 0 to 10) *';
+      input.max = '10';
+      input.placeholder = 'e.g. 8.4';
+      help.innerText = 'Students in 2nd, 3rd, and 4th years are evaluated by CGPA.';
+    }
+  }
+
+  function buildCsvContent() {
+    const fullName = document.getElementById('fullName').value.trim();
+    const rollNo = document.getElementById('rollNo').value.trim().toUpperCase();
+    const email = document.getElementById('email').value.trim();
+    const program = document.getElementById('program').value.trim();
+    const year = document.getElementById('academicYear').value;
+    const score = document.getElementById('score').value.trim();
+
+    // Hostels
+    const hostelCheckboxes = document.querySelectorAll('input[name="hostel"]:checked');
+    const hostels = Array.from(hostelCheckboxes).map(c => c.value).join(', ');
+    const occupancy = document.getElementById('occupancy').value;
+
+    const sleepTime = document.getElementById('sleepTime').value || "23:00";
+    const wakeTime = document.getElementById('wakeTime').value || "07:00";
+    const cleanliness = document.getElementById('cleanliness').value;
+    const noise = document.getElementById('noise').value;
+    const studyRoom = document.getElementById('studyRoom').value;
+    const studyTime = document.getElementById('studyTime').value;
+    const roomEnv = document.getElementById('roomEnv').value;
+    const guests = document.getElementById('guests').value;
+    const foodPref = document.getElementById('foodPref').value;
+    const foodSharing = document.getElementById('foodSharing').value;
+    const roomOrg = document.getElementById('roomOrg').value;
+
+    // Importance
+    const impSleep = document.querySelector('input[name="imp_SLEEP"]:checked')?.value || "Preferable";
+    const impClean = document.querySelector('input[name="imp_CLEANLINESS"]:checked')?.value || "Preferable";
+    const impNoise = document.querySelector('input[name="imp_NOISE"]:checked')?.value || "Preferable";
+    const impStudy = document.querySelector('input[name="imp_STUDY"]:checked')?.value || "Preferable";
+    const impSchedule = document.querySelector('input[name="imp_SCHEDULE"]:checked')?.value || "Not important";
+    const impEnv = document.querySelector('input[name="imp_ENVIRONMENT"]:checked')?.value || "Preferable";
+    const impSocial = document.querySelector('input[name="imp_SOCIAL"]:checked')?.value || "Not important";
+    const impFood = document.querySelector('input[name="imp_FOOD"]:checked')?.value || "Not important";
+
+    const consent = document.getElementById('consentCheck').checked ? "Yes I agree" : "No";
+
+    const now = new Date();
+    const timestamp = now.getFullYear() + "/" + 
+      String(now.getMonth() + 1).padStart(2, '0') + "/" + 
+      String(now.getDate()).padStart(2, '0') + " " + 
+      String(now.getHours()).padStart(2, '0') + ":" + 
+      String(now.getMinutes()).padStart(2, '0') + ":" + 
+      String(now.getSeconds()).padStart(2, '0');
+
+    const headers = [
+      "Timestamp", "Full Name", "Roll Number", "University Email", "Program",
+      "Academic Year", "Score", "Hostel Preferences", "Occupancy Preference",
+      "Sleep Time", "Wake Time", "Cleanliness", "Noise Tolerance",
+      "Study In Room", "Study Time", "Room Environment", "Guest Frequency",
+      "Food Preference", "Food Sharing", "Room Organization",
+      "Importance Sleep schedule", "Importance Cleanliness", "Importance Noise tolerance",
+      "Importance Study habits", "Importance Daily schedule", "Importance Room environment",
+      "Importance Guests and social", "Importance Food", "Consent"
+    ];
+
+    const values = [
+      timestamp,
+      fullName,
+      rollNo,
+      email,
+      program,
+      year,
+      score,
+      hostels.includes(',') ? `"${hostels}"` : hostels,
+      occupancy,
+      sleepTime,
+      wakeTime,
+      cleanliness,
+      noise,
+      studyRoom,
+      studyTime,
+      roomEnv,
+      guests,
+      foodPref,
+      foodSharing,
+      roomOrg,
+      impSleep,
+      impClean,
+      impNoise,
+      impStudy,
+      impSchedule,
+      impEnv,
+      impSocial,
+      impFood,
+      consent
+    ];
+
+    return {
+      rollNo,
+      fullName,
+      csv: headers.join(",") + "\n" + values.join(",")
+    };
+  }
+
+  async function submitRegistration() {
+    const btn = document.getElementById('submitBtn');
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "Registering...";
+
+    const { rollNo, fullName, csv } = buildCsvContent();
+
+    // Determine server port (from URL query, window port, or default 8080)
+    const port = new URLSearchParams(window.location.search).get('port') || window.location.port || '8080';
+    const serverUrl = `http://localhost:${port}/api/register`;
+
+    try {
+      const resp = await fetch(serverUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/csv; charset=utf-8" },
+        body: csv
+      });
+      const data = await resp.json();
+
+      if (resp.ok && data.success) {
+        showModal(
+          "🎉",
+          "Registration Successful!",
+          `Welcome <strong>${fullName}</strong>!<br><br>Your profile for roll number <strong>${rollNo}</strong> has been automatically saved in RoomSync.<br><br>👉 <strong>Switch back to the RoomSync application</strong> — your roll number has already been set, simply click <strong>Continue</strong> to see your eligible hostels and roommate matches!`,
+          true
+        );
+      } else {
+        showModal(
+          "⚠️",
+          "Registration Error",
+          data.error || "Could not register. Please check your inputs.",
+          false
+        );
+      }
+    } catch (err) {
+      // Local server unreachable fallback
+      triggerCsvDownload(rollNo, csv);
+      showModal(
+        "📥",
+        "Saved via CSV Backup",
+        `Could not connect to the live RoomSync application on port ${port}.<br><br>We downloaded your registration as <strong>room_sync_${rollNo.toLowerCase()}_response.csv</strong> in your Downloads folder.<br><br>To import: Open RoomSync &rarr; <strong>Admin</strong> &rarr; enter <code>admin123</code> &rarr; <strong>Choose CSV file</strong>.`,
+        false
+      );
+    } finally {
+      btn.disabled = false;
+      btn.innerText = originalText;
+    }
+  }
+
+  function downloadBackupCsv() {
+    const { rollNo, csv } = buildCsvContent();
+    triggerCsvDownload(rollNo, csv);
+  }
+
+  function triggerCsvDownload(rollNo, csvContent) {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", `room_sync_${rollNo.toLowerCase()}_response.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function showModal(icon, title, bodyHtml, success) {
+    document.getElementById('modalIcon').innerText = icon;
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalBody').innerHTML = bodyHtml;
+    const modal = document.getElementById('statusModal');
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('statusModal').style.display = 'none';
+  }
+
+  // Update on load
+  updateScoreLabel();
+  // Form submit handler
+  document.getElementById('roomSyncForm').onsubmit = function(e) {
+    e.preventDefault();
+    submitRegistration();
+  };
+</script>
+
+</body>
+</html>
+

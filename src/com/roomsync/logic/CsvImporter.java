@@ -37,14 +37,26 @@ public class CsvImporter {
     static final List<String> OCCUPANCY_TYPES = List.of("SINGLE", "DOUBLE", "TRIPLE");
 
     public Result parse(Path file, List<Hostel> hostels, Set<String> existingRolls) {
-        Result result = new Result();
-        List<String> lines;
         try {
-            lines = Files.readAllLines(file, StandardCharsets.UTF_8);
+            return parseLines(Files.readAllLines(file, StandardCharsets.UTF_8), hostels, existingRolls);
         } catch (IOException e) {
+            Result result = new Result();
             result.errors.add("Could not read the file: " + file.getFileName());
             return result;
         }
+    }
+
+    public Result parseString(String csvContent, List<Hostel> hostels, Set<String> existingRolls) {
+        if (csvContent == null || csvContent.isBlank()) {
+            Result r = new Result();
+            r.errors.add("The content is empty.");
+            return r;
+        }
+        return parseLines(java.util.Arrays.asList(csvContent.split("\\r?\\n")), hostels, existingRolls);
+    }
+
+    public Result parseLines(List<String> lines, List<Hostel> hostels, Set<String> existingRolls) {
+        Result result = new Result();
         if (lines.isEmpty()) {
             result.errors.add("The file is empty.");
             return result;
@@ -125,7 +137,9 @@ public class CsvImporter {
 
         // One "Importance <Factor>" column per factor, e.g. "Importance Sleep Schedule".
         for (String factor : CompatibilityCalculator.FACTORS) {
-            String level = importance(row.get("Importance " + CompatibilityCalculator.LABELS.get(factor)));
+            String label = CompatibilityCalculator.LABELS.get(factor);
+            String level = importance(row.get("Importance " + label));
+            if (level == null) level = importance(row.get("Importance [" + label + "]"));
             if (level != null) s.requirements.add(new Requirement(factor, level));
         }
         return s;

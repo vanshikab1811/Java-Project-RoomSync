@@ -4,6 +4,8 @@ import com.roomsync.db.HostelDao;
 import com.roomsync.db.StudentDao;
 import com.roomsync.logic.CompatibilityCalculator;
 import com.roomsync.logic.MatchingService;
+import com.roomsync.logic.RegistrationServer;
+import com.roomsync.logic.SyncService;
 import com.roomsync.model.MatchResult;
 import com.roomsync.model.Student;
 
@@ -16,6 +18,8 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Properties;
 
 /** The window: a slim top bar for navigation and a CardLayout holding the five screens. */
@@ -24,6 +28,8 @@ public class MainFrame extends JFrame {
     final StudentDao studentDao = new StudentDao();
     final HostelDao hostelDao = new HostelDao();
     final MatchingService matching;
+    public final SyncService syncService;
+    private final RegistrationServer server;
 
     private final CardLayout cards = new CardLayout();
     private final JPanel deck = new JPanel(cards);
@@ -44,6 +50,14 @@ public class MainFrame extends JFrame {
         super("RoomSync");
         this.config = config;
         this.matching = new MatchingService(new CompatibilityCalculator(config));
+        this.syncService = new SyncService(config, studentDao, hostelDao);
+
+        int port = 8080;
+        try {
+            port = Integer.parseInt(config.getProperty("server.port", "8080"));
+        } catch (NumberFormatException ignored) {}
+        this.server = new RegistrationServer(this, studentDao, hostelDao);
+        this.server.start(port);
 
         loginPanel = new LoginPanel(this);
         profilePanel = new ProfilePanel(this);
@@ -81,10 +95,42 @@ public class MainFrame extends JFrame {
         add(deck, BorderLayout.CENTER);
         getContentPane().setBackground(Theme.BACKGROUND);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                server.stop();
+            }
+        });
         setSize(Theme.WINDOW_WIDTH, Theme.WINDOW_HEIGHT);
         setMinimumSize(new Dimension(920, 640));
         setLocationRelativeTo(null);
         showLogin();
+
+        // Background polling for Google Sheet sync every 10 seconds if configured
+        Thread syncThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(10000);
+                    int count = syncService.syncFromSheet();
+                    if (count > 0) {
+                        javax.swing.SwingUtilities.invokeLater(() -> dataChanged());
+                    }
+                } catch (InterruptedException e) {
+                    break;
+                } catch (Exception ignored) {}
+            }
+        }, "GoogleSheetSyncThread");
+        syncThread.setDaemon(true);
+        syncThread.start();
+    }
+
+    public int getServerPort() {
+        return server.getPort();
+    }
+
+    public void setLoginRoll(String roll) {
+        showLogin();
+        loginPanel.setRoll(roll);
     }
 
     Student currentStudent() {
@@ -144,7 +190,7 @@ public class MainFrame extends JFrame {
     }
 
     /** After admin changes, refresh the signed in student (or sign out if they no longer exist). */
-    void dataChanged() {
+    public void dataChanged() {
         if (current == null) return;
         try {
             current = studentDao.findByRoll(current.rollNo);
