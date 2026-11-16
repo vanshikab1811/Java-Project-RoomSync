@@ -48,15 +48,42 @@ If a `jdk` folder exists in the project (a portable JDK), the scripts use it; ot
 
 ## Using the app
 
-1. **Sign in** with a roll number. Demo examples:
-   - `24BCE1001` (Year 1, percentile, with a must-have that excludes one candidate)
-   - `23BCE1101` (Year 2, CGPA)
-   - `21BCE1301` (Year 4, only two valid matches)
-   - `24BCE1005` (below every cutoff, shows the "no eligible hostels" state)
-   - `21BME1303` (too few lifestyle answers, shows the "insufficient data" state)
+1. **Sign in / Registration:**
+   - Sign in with an existing roll number, or click **"New student? Fill registration form ↗"** to open the registration questionnaire in your browser.
+   - Demo roll numbers:
+     - `24BCE1001` (Year 1, percentile, with a must-have that excludes one candidate)
+     - `23BCE1101` (Year 2, CGPA)
+     - `21BCE1301` (Year 4, only two valid matches)
+     - `24BCE1005` (below every cutoff, shows the "no eligible hostels" state)
+     - `21BME1303` (too few lifestyle answers, shows the "insufficient data" state)
 2. **Profile** shows your details, score type, verification status and eligible hostels with occupancy options.
 3. **Matches** shows up to three cards. **View details** opens the score breakdown, compatible habits, conflicts and the optional **Express interest** button.
 4. **Admin** (password `admin123`, set in `resources/config.properties`) can import a CSV, mark a score as verified, and reset the demo data.
+
+## Registration Form & Automatic Database Sync
+
+RoomSync supports two automated ways to register new students and update the database:
+
+### Option A: Live Google Form + Automatic Sheet Sync
+If you are using Google Forms (like the URL in `config.properties`):
+1. In your Google Form, open the **Responses** tab and click **"Link to Sheets"** (or view linked sheet).
+2. In that Google Sheet:
+   - Click **File > Share > Share with others**.
+   - Under General Access, change "Restricted" to **"Anyone with the link can view"**.
+   - Copy the Google Sheet link.
+3. Open `resources/config.properties` and paste your link:
+   ```properties
+   sheet.sync.url=https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit
+   ```
+4. **How the auto-sync works:**
+   - When a student fills the Google Form and then enters their roll number on RoomSync's login screen, the app **automatically queries the Google Sheet**, imports the new student into SQLite, and logs them in immediately!
+   - RoomSync also polls the sheet in the background every 10 seconds.
+   - You can also click **"Sync Google Sheet"** inside the Admin panel.
+
+### Option B: Built-in Interactive Web Form (`resources/registration_form.html`)
+- If `form.url=resources/registration_form.html`, clicking **"New student? Fill registration form ↗"** opens the local web form.
+- When the student clicks **"Register with RoomSync"**, it submits directly to RoomSync's embedded HTTP server (`localhost:8080/api/register`).
+- The database is updated in real time, the login screen automatically fills their roll number, and clicking **Continue** signs in instantly.
 
 ## Resetting the demo data
 

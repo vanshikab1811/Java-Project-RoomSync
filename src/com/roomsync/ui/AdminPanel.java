@@ -95,8 +95,10 @@ public class AdminPanel extends JPanel {
     private JPanel toolsView() {
         Theme.Button importSample = new Theme.Button("Import sample CSV", Theme.Button.PRIMARY);
         Theme.Button importFile = new Theme.Button("Choose CSV file", Theme.Button.SECONDARY);
+        Theme.Button syncSheet = new Theme.Button("Sync Google Sheet", Theme.Button.SECONDARY);
         importSample.addActionListener(e -> importCsv(SAMPLE_CSV));
         importFile.addActionListener(e -> chooseCsv());
+        syncSheet.addActionListener(e -> syncSheet());
 
         Theme.Button reset = new Theme.Button("Reset demo data", Theme.Button.SECONDARY);
         reset.addActionListener(e -> reset());
@@ -116,7 +118,7 @@ public class AdminPanel extends JPanel {
                         Theme.wrap("Import a Google Form export saved as CSV. Rows with problems are skipped and listed "
                                 + "in the results below.", Theme.BODY, Theme.TEXT_MUTED, Theme.WIDE_TEXT_WIDTH),
                         Theme.space(Theme.GAP),
-                        Theme.row(importSample, importFile)),
+                        Theme.row(importSample, importFile, syncSheet)),
                 Theme.space(Theme.GAP),
                 Theme.card("Verify a score",
                         Theme.wrap("Marks a student's self-reported score as verified after checking their records.",
@@ -160,6 +162,21 @@ public class AdminPanel extends JPanel {
             frame.dataChanged();
         } catch (Exception e) {
             frame.showError("The CSV could not be imported.", e);
+        }
+    }
+
+    private void syncSheet() {
+        int count = frame.syncService.syncFromSheet();
+        if (count > 0) {
+            log.setText("Sync successful! Imported " + count + " new student(s) from linked Google Sheet.");
+            frame.dataChanged();
+        } else {
+            String url = frame.config.getProperty("sheet.sync.url", "").trim();
+            if (url.isEmpty()) {
+                log.setText("No Google Sheet sync URL configured.\nSet sheet.sync.url in resources/config.properties to auto-sync with Google Forms.");
+            } else {
+                log.setText("Checked Google Sheet: no new student entries found.");
+            }
         }
     }
 

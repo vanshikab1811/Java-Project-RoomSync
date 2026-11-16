@@ -3,17 +3,23 @@ package com.roomsync.ui;
 import com.roomsync.model.Student;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.Desktop;
 import java.awt.GridBagLayout;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /** Screen 1: sign in with a roll number. */
 public class LoginPanel extends JPanel {
     private final MainFrame frame;
     private final JTextField rollField = Theme.textField();
     private final Theme.Button continueButton = new Theme.Button("Continue", Theme.Button.PRIMARY);
+    private final Theme.Button registerButton = new Theme.Button("New student? Fill registration form \u2197", Theme.Button.SECONDARY);
     private final JLabel message = Theme.label(" ", Theme.SMALL, Theme.TEXT);
 
     public LoginPanel(MainFrame frame) {
@@ -34,11 +40,14 @@ public class LoginPanel extends JPanel {
                 message,
                 Theme.space(Theme.GAP),
                 continueButton,
+                Theme.space(Theme.GAP),
+                registerButton,
                 Theme.space(Theme.PAD),
                 Theme.muted("Demo roll numbers: 24BCE1001, 23BCE1101, 22BCE1201, 21BCE1301"));
 
         continueButton.setEnabled(false);
         continueButton.addActionListener(e -> submit());
+        registerButton.addActionListener(e -> openRegistrationForm());
         rollField.addActionListener(e -> submit());
         rollField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { changed(); }
@@ -53,9 +62,46 @@ public class LoginPanel extends JPanel {
         message.setText(" ");
     }
 
+    public void setRoll(String roll) {
+        rollField.setText(roll);
+        message.setText("Registration saved for " + roll + "! Click Continue to sign in.");
+        continueButton.setEnabled(true);
+    }
+
     private void changed() {
         continueButton.setEnabled(!rollField.getText().isBlank());
         message.setText(" ");
+    }
+
+    private void openRegistrationForm() {
+        String url = frame.config.getProperty("form.url", "resources/registration_form.html").trim();
+        if (url.isEmpty()) return;
+        try {
+            URI uri;
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+                uri = new URI(url);
+            } else {
+                // If it's the local form, route to the live embedded server so submitting connects automatically!
+                int port = frame.getServerPort();
+                uri = new URI("http://localhost:" + port + "/form");
+            }
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(uri);
+            } else {
+                new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", uri.toString()).start();
+            }
+        } catch (Exception ex) {
+            // Fallback to local file if server URI fails
+            try {
+                Path p = Path.of(url);
+                if (!p.isAbsolute()) p = Path.of("").toAbsolutePath().resolve(p);
+                Desktop.getDesktop().browse(p.toUri());
+            } catch (Exception ignored) {
+                JOptionPane.showMessageDialog(this,
+                        "Could not open browser automatically.\nPlease visit:\n" + url,
+                        "RoomSync Registration", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
     }
 
     private void submit() {
@@ -68,7 +114,14 @@ public class LoginPanel extends JPanel {
         try {
             Student s = frame.studentDao.findByRoll(roll);
             if (s == null) {
-                message.setText("We couldn't find that roll number. Check it and try again.");
+                // Check if Google Sheet sync finds any new entries submitted via Google Form
+                int synced = frame.syncService.syncFromSheet();
+                if (synced > 0) {
+                    s = frame.studentDao.findByRoll(roll);
+                }
+            }
+            if (s == null) {
+                message.setText("Roll number not found. Click the form link below to register.");
                 return;
             }
             frame.signIn(s);
