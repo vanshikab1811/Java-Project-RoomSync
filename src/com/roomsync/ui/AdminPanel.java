@@ -202,7 +202,7 @@ public class AdminPanel extends JPanel {
         if (answer != JOptionPane.OK_OPTION) return;
         try {
             Database.resetDemoData();
-            log.setText("Demo data has been reset to the original 21 students and 3 hostels.");
+            log.setText("Demo data has been reset to the 360 students and 3 hostels.");
             frame.dataChanged();
         } catch (Exception e) {
             frame.showError("Demo data could not be reset.", e);
