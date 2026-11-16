@@ -1,0 +1,8 @@
+# Regenerated with demo data on first launch
+roomsync.db
+
+# Compiled classes
+out/
+
+# Optional portable JDK used to build on this machine
+jdk/
