@@ -21,7 +21,7 @@ public class StudentDao {
     private static final String COLUMNS = "name, roll_no, email, program, academic_year, score_type, score, "
             + "verification_status, sleep_time, wake_time, cleanliness, noise_tolerance, study_in_room, study_time, "
             + "room_environment, guest_frequency, food_preference, food_sharing, room_organization, "
-            + "hostel_pref_ids, occupancy_pref";
+            + "hostel_pref_ids, occupancy_pref, gender";
 
     public Student findByRoll(String rollNo) throws SQLException {
         try (Connection c = Database.connect();
@@ -60,7 +60,7 @@ public class StudentDao {
 
     /** Inserts students and their requirements in one transaction. */
     public void insertAll(List<Student> students) throws SQLException {
-        String placeholders = "?,".repeat(21);
+        String placeholders = "?,".repeat(22);
         String sql = "INSERT INTO STUDENT (" + COLUMNS + ") VALUES (" + placeholders.substring(0, placeholders.length() - 1) + ")";
         try (Connection c = Database.connect()) {
             c.setAutoCommit(false);
@@ -158,6 +158,7 @@ public class StudentDao {
         s.roomOrganization = rs.getString("room_organization");
         s.hostelPrefIds = rs.getString("hostel_pref_ids");
         s.occupancyPref = rs.getString("occupancy_pref");
+        s.gender = rs.getString("gender");
         return s;
     }
 
@@ -183,6 +184,7 @@ public class StudentDao {
         ps.setString(19, s.roomOrganization);
         ps.setString(20, s.hostelPrefIds);
         ps.setString(21, s.occupancyPref);
+        ps.setString(22, s.gender == null ? "MALE" : s.gender);
     }
 
     private static Integer intOrNull(ResultSet rs, String col) throws SQLException {

@@ -175,3 +175,18 @@ Java-Project-RoomSync/
 2. **Explainable Scoring:** The algorithm provides a detailed score breakdown showing why two students matched and explains differences without revealing private individual answers.
 3. **Robust Input Handling:** Time values handle midnight crossovers seamlessly; numbers, scales, and score ranges are strictly bound; Google Sheet grid headers with or without brackets (`Importance [Factor]`) are handled transparently.
 
+
+
+---
+
+## Update: Gender, multi-choice study time and occupancy
+
+- **Gender question added** (Male / Female, required) to the Google Form script, the local registration form, the CSV importer (`Gender` column), the `STUDENT.gender` DB column, `Student.gender` and the Profile screen.
+- **Hard matching rule:** a student is only ever compared with students of the **same gender** (plus same year and a shared eligible hostel). Implemented in `MatchingService.findTopMatches`.
+- **Study Time is now multi-select** (checkboxes). Stored comma separated, e.g. `MORNING,NIGHT`. Scoring in `CompatibilityCalculator.overlapScore`: `shared options / all different options chosen by either student x 100`. The STUDY factor is still the average of "study in room" and "study time".
+- **Occupancy Preference is now multi-select**, stored comma separated, e.g. `DOUBLE,TRIPLE`. It is display-only (it never affects the score); the profile highlights every chosen type and says whether any of them is offered by the hostel.
+- In the CSV / Google Sheet export, multi-select cells look like `"Morning, Night"`; `CsvImporter.multiChoice` handles `,` and `;`.
+- `seed.sql` regenerated: 360 students, 180 male / 180 female, 172 with several study times, 120 with several occupancy choices.
+- **Migration:** `Database.init` detects an old database without the `gender` column and rebuilds it with the demo data. Students registered in the old DB are lost (re-register them or re-sync the sheet).
+- **Re-create the Google Form** by running the updated `resources/create_google_form.gs` (existing forms do not have the Gender question, and sheet sync will report "Missing column: Gender" until the form has it).
+- Tests: 31 checks pass (`run.bat test`), including new gender and multi-choice tests.

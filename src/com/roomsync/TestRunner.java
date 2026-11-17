@@ -33,6 +33,8 @@ public class TestRunner {
         missingDataHandling();
         topThreeRanking();
         csvValidation();
+        sameGenderOnly();
+        multiChoiceAnswers();
         System.out.println(failures == 0 ? "\nAll tests passed." : "\n" + failures + " test(s) failed.");
         if (failures > 0) System.exit(1);
     }
@@ -129,12 +131,39 @@ public class TestRunner {
                 r.students.stream().anyMatch(s -> "00:10".equals(s.sleepTime)));
     }
 
+    static void sameGenderOnly() {
+        Student me = student(1, "Asha Rao", 2);
+        me.gender = "FEMALE";
+        Student sameGender = student(2, "Bina Das", 2);
+        sameGender.gender = "FEMALE";
+        Student otherGender = student(3, "Chetan Iyer", 2);   // identical habits but a different gender
+        MatchingService.Outcome out = MATCHING.findTopMatches(me, List.of(me, sameGender, otherGender), HOSTELS);
+        check("gender: only same-gender candidates are returned",
+                out.matches.size() == 1 && out.matches.get(0).candidate.id == 2);
+    }
+
+    static void multiChoiceAnswers() {
+        Student a = student(1, "Asha Rao", 2);
+        Student b = student(2, "Bina Das", 2);
+        a.studyTime = "MORNING,NIGHT";
+        b.studyTime = "NIGHT,EVENING";   // 1 shared out of 3 different options
+        Double score = CALC.factorScore("STUDY", a, b);
+        check("multi choice: study time scored by overlap (1 of 3 shared)", score != null && Math.abs(score - (100 + 100.0 / 3) / 2) < 0.001);
+        b.studyTime = "NIGHT,MORNING";
+        check("multi choice: same study times score 100", Math.abs(CALC.factorScore("STUDY", a, b) - 100) < 0.001);
+        a.occupancyPref = "DOUBLE,TRIPLE";
+        check("multi choice: occupancy list is split", a.occupancyPrefs().size() == 2);
+        check("multi choice: occupancy note uses any preference",
+                EligibilityService.occupancyNote(a, HOSTELS.get(0)).contains("include"));
+    }
+
     /** A year-2+ student with a full, identical set of answers that tests then tweak. */
     private static Student student(int id, String name, int year) {
         Student s = new Student();
         s.id = id;
         s.name = name;
         s.rollNo = "T" + id;
+        s.gender = "MALE";
         s.academicYear = year;
         s.scoreType = EligibilityService.requiredScoreType(year);
         s.score = year == 1 ? 90 : 8.5;

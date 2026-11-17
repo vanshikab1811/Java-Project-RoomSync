@@ -38,8 +38,9 @@ public class MatchingService {
 
         List<MatchResult> valid = new ArrayList<>();
         for (Student other : everyone) {
-            // Hard rules: a different student, in the same year, sharing at least one eligible hostel.
+            // Hard rules: a different student, of the same gender, in the same year, sharing at least one eligible hostel.
             if (other.id == me.id || other.rollNo != null && other.rollNo.equalsIgnoreCase(me.rollNo)) continue;
+            if (me.gender == null || other.gender == null || !me.gender.equalsIgnoreCase(other.gender)) continue;
             if (other.academicYear != me.academicYear) continue;
             List<String> common = commonHostels(myHostels, EligibilityService.eligibleHostels(other, hostels));
             if (common.isEmpty()) continue;
@@ -56,7 +57,7 @@ public class MatchingService {
 
         out.matches = rankTop3(valid);
         if (out.matches.isEmpty()) {
-            out.message = "No compatible students in your year share an eligible hostel with you right now.";
+            out.message = "No compatible students of the same gender and year share an eligible hostel with you right now.";
         }
         return out;
     }

@@ -36,13 +36,19 @@ public class EligibilityService {
         return s.preferredHostelIds().indexOf(h.id) + 1;
     }
 
-    /** Plain note about whether the student's occupancy preference is one of the hostel's room types. */
+    /** Plain note about whether the student's occupancy preferences include one of the hostel's room types. */
     public static String occupancyNote(Student s, Hostel h) {
-        if (s.occupancyPref == null || s.occupancyPref.isBlank()) return "No occupancy preference given.";
-        String pref = pretty(s.occupancyPref);
-        return h.occupancyList().contains(s.occupancyPref)
-                ? "Your preference (" + pref + ") is one of this hostel's room types."
-                : "Your preference (" + pref + ") is not one of this hostel's room types.";
+        List<String> prefs = s.occupancyPrefs();
+        if (prefs.isEmpty()) return "No occupancy preference given.";
+        List<String> shown = new ArrayList<>();
+        for (String p : prefs) shown.add(pretty(p));
+        String pref = String.join(" / ", shown);
+        boolean any = false;
+        for (String p : prefs) if (h.occupancyList().contains(p)) any = true;
+        String label = prefs.size() == 1 ? "preference" : "preferences";
+        return any
+                ? "Your " + label + " (" + pref + ") include one of this hostel's room types."
+                : "Your " + label + " (" + pref + ") do not include any of this hostel's room types.";
     }
 
     public static String scoreLabel(String scoreType) {

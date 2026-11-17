@@ -61,6 +61,12 @@ function createRoomSyncForm() {
       .setRequired(true);
 
   form.addMultipleChoiceItem()
+      .setTitle('Gender')
+      .setHelpText('Roommate matches are only made between students of the same gender.')
+      .setChoiceValues(['Male', 'Female'])
+      .setRequired(true);
+
+  form.addMultipleChoiceItem()
       .setTitle('Academic Year')
       .setChoiceValues(['1st Year', '2nd Year', '3rd Year', '4th Year'])
       .setRequired(true);
@@ -88,8 +94,9 @@ function createRoomSyncForm() {
       .setChoiceValues(['Aravali House', 'Nilgiri Residency', 'Shivalik Hall'])
       .setRequired(false);
 
-  form.addMultipleChoiceItem()
+  form.addCheckboxItem()
       .setTitle('Occupancy Preference')
+      .setHelpText('Select all that apply.')
       .setChoiceValues(['Single', 'Double', 'Triple'])
       .setRequired(false);
 
@@ -142,8 +149,9 @@ function createRoomSyncForm() {
       .setChoiceValues(['Yes', 'Sometimes', 'No'])
       .setRequired(false);
 
-  form.addMultipleChoiceItem()
+  form.addCheckboxItem()
       .setTitle('Study Time')
+      .setHelpText('Select all that apply.')
       .setChoiceValues(['Morning', 'Afternoon', 'Evening', 'Night'])
       .setRequired(false);
 
