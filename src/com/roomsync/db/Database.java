@@ -31,6 +31,7 @@ public class Database {
     /** Creates missing tables, then seeds demo data if there are no hostels or students yet. */
     public static void init() throws SQLException, IOException {
         try (Connection c = connect()) {
+            if (allTablesExist(c) && !hasGenderColumn(c)) dropAllTables(c);   // old database: rebuild with gender
             if (!allTablesExist(c)) runScript(c, Path.of("resources", "schema.sql"));
             if (isEmpty(c)) runScript(c, Path.of("resources", "seed.sql"));
         }
@@ -66,6 +67,22 @@ public class Database {
             }
         }
         return true;
+    }
+
+    private static boolean hasGenderColumn(Connection c) throws SQLException {
+        try (Statement st = c.createStatement(); ResultSet rs = st.executeQuery("PRAGMA table_info(STUDENT)")) {
+            while (rs.next()) {
+                if ("gender".equalsIgnoreCase(rs.getString("name"))) return true;
+            }
+        }
+        return false;
+    }
+
+    /** Used once when an older database without the gender column is found; demo data is reloaded afterwards. */
+    private static void dropAllTables(Connection c) throws SQLException {
+        try (Statement st = c.createStatement()) {
+            for (String t : new String[] {"INTEREST", "REQUIREMENT", "STUDENT", "HOSTEL"}) st.executeUpdate("DROP TABLE IF EXISTS " + t);
+        }
     }
 
     private static boolean isEmpty(Connection c) throws SQLException {

@@ -106,6 +106,19 @@ public class CompatibilityCalculator {
         return d == 0 ? 100.0 : d == 1 ? 50.0 : 0.0;
     }
 
+    /**
+     * Multi-choice answers (such as study time): the share of chosen options the two students have in common,
+     * i.e. shared / total different options chosen by either. Same set = 100, nothing shared = 0.
+     */
+    static Double overlapScore(List<String> a, List<String> b) {
+        if (a.isEmpty() || b.isEmpty()) return null;
+        java.util.Set<String> union = new java.util.HashSet<>(a);
+        union.addAll(b);
+        java.util.Set<String> common = new java.util.HashSet<>(a);
+        common.retainAll(b);
+        return 100.0 * common.size() / union.size();
+    }
+
     /** Average of the parts that have data, or null if none do. */
     static Double average(Double... parts) {
         double sum = 0;
@@ -126,7 +139,7 @@ public class CompatibilityCalculator {
             case "CLEANLINESS": return scaleScore(a.cleanliness, b.cleanliness);
             case "NOISE": return scaleScore(a.noiseTolerance, b.noiseTolerance);
             case "STUDY": return average(categoryScore(a.studyInRoom, b.studyInRoom, STUDY_IN_ROOM),
-                    categoryScore(a.studyTime, b.studyTime, STUDY_TIME));
+                    overlapScore(a.studyTimes(), b.studyTimes()));
             case "SCHEDULE": return timeScore(a.wakeTime, b.wakeTime);
             case "ENVIRONMENT": return average(categoryScore(a.roomEnvironment, b.roomEnvironment, ENVIRONMENT),
                     categoryScore(a.roomOrganization, b.roomOrganization, ORGANIZATION));

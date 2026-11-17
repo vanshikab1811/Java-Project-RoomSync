@@ -343,6 +343,15 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label class="required">Gender</label>
+        <div class="radio-group">
+          <label class="option-label"><input type="radio" name="gender" value="Male" required> <span>Male</span></label>
+          <label class="option-label"><input type="radio" name="gender" value="Female"> <span>Female</span></label>
+        </div>
+        <div class="help-text">Roommate matches are only made between students of the same gender.</div>
+      </div>
+
       <div class="grid-2">
         <div class="form-group">
           <label class="required" for="academicYear">Academic Year</label>
@@ -388,12 +397,12 @@
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="occupancy">Preferred Occupancy</label>
-          <select id="occupancy">
-            <option value="Single">Single</option>
-            <option value="Double" selected>Double</option>
-            <option value="Triple">Triple</option>
-          </select>
+          <label>Preferred Occupancy (select all that apply)</label>
+          <div class="checkbox-group">
+            <label class="option-label"><input type="checkbox" name="occupancy" value="Single"> <span>Single</span></label>
+            <label class="option-label"><input type="checkbox" name="occupancy" value="Double" checked> <span>Double</span></label>
+            <label class="option-label"><input type="checkbox" name="occupancy" value="Triple"> <span>Triple</span></label>
+          </div>
         </div>
         <div class="form-group">
           <label for="floor">Preferred Floor / Building</label>
@@ -459,13 +468,13 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="studyTime">Preferred Study Time</label>
-          <select id="studyTime">
-            <option value="Night" selected>Night</option>
-            <option value="Evening">Evening</option>
-            <option value="Morning">Morning</option>
-            <option value="Afternoon">Afternoon</option>
-          </select>
+          <label>Preferred Study Time (select all that apply)</label>
+          <div class="checkbox-group">
+            <label class="option-label"><input type="checkbox" name="studyTime" value="Morning"> <span>Morning</span></label>
+            <label class="option-label"><input type="checkbox" name="studyTime" value="Afternoon"> <span>Afternoon</span></label>
+            <label class="option-label"><input type="checkbox" name="studyTime" value="Evening"> <span>Evening</span></label>
+            <label class="option-label"><input type="checkbox" name="studyTime" value="Night" checked> <span>Night</span></label>
+          </div>
         </div>
       </div>
 
@@ -693,14 +702,15 @@
     // Hostels
     const hostelCheckboxes = document.querySelectorAll('input[name="hostel"]:checked');
     const hostels = Array.from(hostelCheckboxes).map(c => c.value).join(', ');
-    const occupancy = document.getElementById('occupancy').value;
+    const occupancy = Array.from(document.querySelectorAll('input[name="occupancy"]:checked')).map(c => c.value).join(', ');
 
     const sleepTime = document.getElementById('sleepTime').value || "23:00";
     const wakeTime = document.getElementById('wakeTime').value || "07:00";
     const cleanliness = document.getElementById('cleanliness').value;
     const noise = document.getElementById('noise').value;
     const studyRoom = document.getElementById('studyRoom').value;
-    const studyTime = document.getElementById('studyTime').value;
+    const studyTime = Array.from(document.querySelectorAll('input[name="studyTime"]:checked')).map(c => c.value).join(', ');
+    const gender = document.querySelector('input[name="gender"]:checked')?.value || "";
     const roomEnv = document.getElementById('roomEnv').value;
     const guests = document.getElementById('guests').value;
     const foodPref = document.getElementById('foodPref').value;
@@ -728,7 +738,7 @@
       String(now.getSeconds()).padStart(2, '0');
 
     const headers = [
-      "Timestamp", "Full Name", "Roll Number", "University Email", "Program",
+      "Timestamp", "Full Name", "Roll Number", "University Email", "Program", "Gender",
       "Academic Year", "Score", "Hostel Preferences", "Occupancy Preference",
       "Sleep Time", "Wake Time", "Cleanliness", "Noise Tolerance",
       "Study In Room", "Study Time", "Room Environment", "Guest Frequency",
@@ -744,16 +754,17 @@
       rollNo,
       email,
       program,
+      gender,
       year,
       score,
       hostels.includes(',') ? `"${hostels}"` : hostels,
-      occupancy,
+      occupancy.includes(',') ? `"${occupancy}"` : occupancy,
       sleepTime,
       wakeTime,
       cleanliness,
       noise,
       studyRoom,
-      studyTime,
+      studyTime.includes(',') ? `"${studyTime}"` : studyTime,
       roomEnv,
       guests,
       foodPref,

@@ -32,8 +32,9 @@ public class CsvImporter {
             YEAR = "Academic Year", SCORE = "Score", HOSTELS = "Hostel Preferences", OCCUPANCY = "Occupancy Preference",
             SLEEP = "Sleep Time", WAKE = "Wake Time", CLEAN = "Cleanliness", NOISE = "Noise Tolerance",
             STUDY_ROOM = "Study In Room", STUDY_TIME = "Study Time", ENV = "Room Environment", GUESTS = "Guest Frequency",
-            FOOD = "Food Preference", SHARING = "Food Sharing", ORG = "Room Organization", CONSENT = "Consent";
-    static final String[] REQUIRED_COLUMNS = {NAME, ROLL, EMAIL, PROGRAM, YEAR, SCORE, CONSENT};
+            FOOD = "Food Preference", SHARING = "Food Sharing", ORG = "Room Organization", CONSENT = "Consent",
+            GENDER = "Gender";
+    static final String[] REQUIRED_COLUMNS = {NAME, ROLL, EMAIL, PROGRAM, GENDER, YEAR, SCORE, CONSENT};
     static final List<String> OCCUPANCY_TYPES = List.of("SINGLE", "DOUBLE", "TRIPLE");
 
     public Result parse(Path file, List<Hostel> hostels, Set<String> existingRolls) {
@@ -91,6 +92,12 @@ public class CsvImporter {
         s.rollNo = required(row, ROLL, problems);
         s.email = required(row, EMAIL, problems);
         s.program = required(row, PROGRAM, problems);
+        String genderText = required(row, GENDER, problems);
+        if (genderText != null) {
+            String g = genderText.trim().toUpperCase();
+            if (g.equals("MALE") || g.equals("FEMALE")) s.gender = g;
+            else problems.add("gender must be Male or Female");
+        }
         if (s.email != null && !s.email.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) problems.add("email is not valid");
 
         String consent = row.get(CONSENT);
@@ -126,13 +133,13 @@ public class CsvImporter {
         s.cleanliness = scale(row, CLEAN, problems);
         s.noiseTolerance = scale(row, NOISE, problems);
         s.studyInRoom = choice(row, STUDY_ROOM, CompatibilityCalculator.STUDY_IN_ROOM, problems);
-        s.studyTime = choice(row, STUDY_TIME, CompatibilityCalculator.STUDY_TIME, problems);
+        s.studyTime = multiChoice(row, STUDY_TIME, CompatibilityCalculator.STUDY_TIME, problems);
         s.roomEnvironment = choice(row, ENV, CompatibilityCalculator.ENVIRONMENT, problems);
         s.guestFrequency = choice(row, GUESTS, CompatibilityCalculator.GUESTS, problems);
         s.foodPreference = choice(row, FOOD, CompatibilityCalculator.FOOD, problems);
         s.foodSharing = choice(row, SHARING, CompatibilityCalculator.SHARING, problems);
         s.roomOrganization = choice(row, ORG, CompatibilityCalculator.ORGANIZATION, problems);
-        s.occupancyPref = choice(row, OCCUPANCY, OCCUPANCY_TYPES, problems);
+        s.occupancyPref = multiChoice(row, OCCUPANCY, OCCUPANCY_TYPES, problems);
         s.hostelPrefIds = hostelIds(row.get(HOSTELS), hostels, problems);
 
         // One "Importance <Factor>" column per factor, e.g. "Importance Sleep Schedule".
@@ -185,6 +192,23 @@ public class CsvImporter {
         if (allowed.contains(code)) return code;
         problems.add(col.toLowerCase() + " \"" + v + "\" is not one of the form options");
         return null;
+    }
+
+    /** Several options in one cell ("Morning, Night" or "Morning; Night") become "MORNING,NIGHT" in a fixed order. */
+    private static String multiChoice(Row row, String col, List<String> allowed, List<String> problems) {
+        String v = row.get(col);
+        if (v == null) return null;
+        java.util.Set<String> picked = new java.util.HashSet<>();
+        for (String part : v.split("[;,]")) {
+            if (part.isBlank()) continue;
+            String code = part.trim().toUpperCase().replaceAll("[\\s-]+", "_");
+            if (allowed.contains(code)) picked.add(code);
+            else problems.add(col.toLowerCase() + " \"" + part.trim() + "\" is not one of the form options");
+        }
+        if (picked.isEmpty()) return null;
+        List<String> ordered = new ArrayList<>();
+        for (String a : allowed) if (picked.contains(a)) ordered.add(a);
+        return String.join(",", ordered);
     }
 
     private static String importance(String v) {

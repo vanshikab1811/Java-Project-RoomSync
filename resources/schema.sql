@@ -26,14 +26,15 @@ CREATE TABLE IF NOT EXISTS STUDENT (
     cleanliness         INTEGER CHECK (cleanliness BETWEEN 1 AND 10),
     noise_tolerance     INTEGER CHECK (noise_tolerance BETWEEN 1 AND 10),
     study_in_room       TEXT,
-    study_time          TEXT,
+    study_time          TEXT,   -- one or more of MORNING, AFTERNOON, EVENING, NIGHT, comma separated
     room_environment    TEXT,
     guest_frequency     TEXT,
     food_preference     TEXT,
     food_sharing        TEXT,
     room_organization   TEXT,
     hostel_pref_ids     TEXT,
-    occupancy_pref      TEXT,
+    occupancy_pref      TEXT,   -- one or more of SINGLE, DOUBLE, TRIPLE, comma separated
+    gender              TEXT NOT NULL DEFAULT 'MALE' CHECK (gender IN ('MALE', 'FEMALE')),
     -- First years are scored by percentile, years 2 to 4 by CGPA. Never mixed.
     CHECK ((academic_year = 1 AND score_type = 'PERCENTILE')
         OR (academic_year > 1 AND score_type = 'CGPA')),

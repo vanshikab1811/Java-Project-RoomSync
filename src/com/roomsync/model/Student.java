@@ -23,7 +23,7 @@ public class Student {
     public Integer cleanliness;           // 1 to 10
     public Integer noiseTolerance;        // 1 to 10
     public String studyInRoom;            // NO / SOMETIMES / YES
-    public String studyTime;              // MORNING / AFTERNOON / EVENING / NIGHT
+    public String studyTime;              // one or more of MORNING / AFTERNOON / EVENING / NIGHT, comma separated
     public String roomEnvironment;        // QUIET / BALANCED / LIVELY
     public String guestFrequency;         // NEVER / RARELY / SOMETIMES / OFTEN
     public String foodPreference;         // VEG / EGG / NON_VEG
@@ -31,7 +31,27 @@ public class Student {
     public String roomOrganization;       // RELAXED / MODERATE / VERY_ORGANIZED
 
     public String hostelPrefIds;          // hostel ids in preference order, e.g. "2,3"
-    public String occupancyPref;          // SINGLE / DOUBLE / TRIPLE
+    public String occupancyPref;          // one or more of SINGLE / DOUBLE / TRIPLE, comma separated
+    public String gender;                 // MALE / FEMALE (matches are only made within the same gender)
+
+    /** Splits a comma separated multi-choice answer into a list (empty when not answered). */
+    public static List<String> splitChoices(String value) {
+        List<String> out = new ArrayList<>();
+        if (value == null) return out;
+        for (String part : value.split(",")) {
+            String p = part.trim();
+            if (!p.isEmpty() && !out.contains(p)) out.add(p);
+        }
+        return out;
+    }
+
+    public List<String> studyTimes() {
+        return splitChoices(studyTime);
+    }
+
+    public List<String> occupancyPrefs() {
+        return splitChoices(occupancyPref);
+    }
 
     public List<Requirement> requirements = new ArrayList<>();
 

@@ -58,6 +58,7 @@ public class ProfilePanel extends JPanel {
         grid.add(field("University email", s.email));
         grid.add(field("Program", s.program));
         grid.add(field("Academic year", "Year " + s.academicYear));
+        grid.add(field("Gender", s.gender == null ? null : EligibilityService.pretty(s.gender)));
         grid.setAlignmentX(LEFT_ALIGNMENT);
         return Theme.card("Your details", grid);
     }
@@ -108,7 +109,7 @@ public class ProfilePanel extends JPanel {
 
         JPanel chips = Theme.row(Theme.muted("Occupancy options"));
         for (String option : h.occupancyList()) {
-            boolean preferred = option.equals(s.occupancyPref);
+            boolean preferred = s.occupancyPrefs().contains(option);
             Theme.addToRow(chips, new Theme.Pill(EligibilityService.pretty(option), preferred ? Theme.ACCENT : Theme.SURFACE));
         }
         Theme.add(row, chips);
